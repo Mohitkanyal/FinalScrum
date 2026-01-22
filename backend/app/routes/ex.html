@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ideas!</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #f7f7fa;
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      position: relative;
+    }
+    .card-container {
+      display: flex;
+      flex: 1 1 auto;
+      justify-content: center;
+      align-items: center;
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+    .card {
+      min-width: 320px;
+      max-width: 90vw;
+      min-height: 180px;
+      max-height: 60vh;
+      background: linear-gradient(135deg, #3a3a7c 0%, #7c3aed 60%, #a855f7 100%);
+      border: none;
+      border-radius: 32px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-size: 2.2rem;
+      font-weight: 600;
+      color: #fff;
+      text-align: center;
+      padding: 2.5rem 2rem;
+      transition: background 0.3s, transform 0.6s cubic-bezier(.68,-0.55,.27,1.55), opacity 0.6s;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) rotateY(0deg);
+      z-index: 2;
+      will-change: transform, opacity;
+    }
+    .card.animate-out {
+      animation: cardOutCircular 0.6s forwards;
+      z-index: 1;
+    }
+    .card.animate-in {
+      animation: cardInCircular 0.6s forwards;
+      z-index: 3;
+    }
+    @keyframes cardOutCircular {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) rotate(0deg) scale(1);
+      }
+      60% {
+        opacity: 0.7;
+        transform: translate(-50%, -50%) rotate(30deg) scale(0.95) translateX(30px) translateY(-10px);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(120%, -120%) rotate(90deg) scale(0.7);
+      }
+    }
+    @keyframes cardInCircular {
+      0% {
+        opacity: 0;
+        transform: translate(-120%, 120%) rotate(-90deg) scale(0.7);
+      }
+      40% {
+        opacity: 0.7;
+        transform: translate(-50%, -50%) rotate(-30deg) scale(0.95) translateX(-30px) translateY(10px);
+      }
+      100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) rotate(0deg) scale(1);
+      }
+    }
+    .refresh-btn {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, #ff69b4 40%, #00e6ff 100%);
+      border: none;
+      border-radius: 50%;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      z-index: 10;
+      transition: box-shadow 0.2s;
+    }
+    .refresh-btn:active {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    }
+    .refresh-icon {
+      width: 36px;
+      height: 36px;
+      fill: #fff;
+      display: block;
+    }
+    @media (max-width: 600px) {
+      .card {
+        font-size: 1.3rem;
+        min-width: 80vw;
+        padding: 1.5rem 1rem;
+      }
+      .refresh-btn {
+        width: 56px;
+        height: 56px;
+      }
+      .refresh-icon {
+        width: 28px;
+        height: 28px;
+      }
+      .filter-btn {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
+        border-radius: 16px;
+      }
+    }
+    .idea-text {
+      width: 100%;
+      font-size: inherit;
+      font-weight: inherit;
+      text-align: center;
+    }
+    .tip-text {
+      width: 100%;
+      font-size: 1.1rem;
+      margin-top: 1.2em;
+      opacity: 0.85;
+      text-align: center;
+      font-weight: 500;
+    }
+    .tip-list {
+      width: 100%;
+      font-size: 1.1rem;
+      margin-top: 1.2em;
+      opacity: 0.85;
+      text-align: left;
+      font-weight: 500;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 1.2em;
+    }
+    .tip-list li {
+      margin-bottom: 0.5em;
+      line-height: 1.5;
+    }
+    .card-meta {
+      font-size: 0.95rem;
+      color: #f3eaff;
+      opacity: 0.85;
+      margin-top: 1.2em;
+      text-align: center;
+      letter-spacing: 0.01em;
+      font-weight: 400;
+      line-height: 1.4;
+      user-select: none;
+      font-family: 'Segoe UI', 'Arial', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+    }
+    .filter-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1.2em;
+      margin-bottom: 1.5em;
+      margin-top: 2em;
+    }
+    .filter-btn {
+      width: 84px;
+      height: 84px;
+      background: #fff;
+      border: 2px solid #e0e0f0;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(60,40,120,0.07);
+      transition: border 0.2s, box-shadow 0.2s, background 0.2s;
+      outline: none;
+      position: relative;
+      user-select: none;
+    }
+    .filter-btn .filter-icon {
+      pointer-events: none;
+    }
+    .filter-btn.pressed {
+      background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+      color: #fff;
+      border: 2px solid #a855f7;
+      box-shadow: 0 4px 16px rgba(120,60,220,0.10);
+    }
+    .filter-btn:not(.pressed) {
+      background: #fff;
+      color: #a855f7;
+      border: 2px solid #e0e0f0;
+      opacity: 0.7;
+    }
+    .filter-btn:active {
+      box-shadow: 0 1px 4px rgba(60,40,120,0.13);
+    }
+    @media (max-width: 600px) {
+      .filter-row {
+        gap: 0.7em;
+        margin-bottom: 1em;
+        margin-top: 1em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="filter-row">
+    <button class="filter-btn" id="filter-time" title="Any time" style="background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); color: #fff; border: 2px solid #a855f7;">
+      <span class="filter-icon" id="icon-time">&#128337;</span>
+    </button>
+    <button class="filter-btn" id="filter-group" title="All activities" style="background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); color: #fff; border: 2px solid #a855f7;">
+      <span class="filter-icon" id="icon-group">&#128107;</span>
+    </button>
+    <button class="filter-btn" id="filter-reservation" title="Walk-in or reservation" style="background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); color: #fff; border: 2px solid #a855f7;">
+      <span class="filter-icon" id="icon-reservation">&#128694;</span>
+    </button>
+  </div>
+  <div class="card-container">
+    <div class="card" id="question-card"></div>
+  </div>
+  <div style="position:relative;display:flex;flex-direction:column;align-items:center;width:fit-content;margin:0 auto;">
+    <span id="refresh-count" style="display:block;position:relative;top:0;left:0;transform:none;background:rgba(0,0,0,0.18);color:#fff;font-size:1.1rem;font-weight:600;padding:2px 12px 2px 12px;border-radius:12px;z-index:2;pointer-events:none;min-width:28px;text-align:center;margin-bottom:4px;"></span>
+    <button class="refresh-btn" id="refresh-btn" aria-label="Next question">
+      <svg class="refresh-icon" viewBox="-40 -40 570 570" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 70%; height: 70%; display: block; margin: auto;">
+        <path d="M460.656,132.911c-58.7-122.1-212.2-166.5-331.8-104.1c-9.4,5.2-13.5,16.6-8.3,27c5.2,9.4,16.6,13.5,27,8.3 c99.9-52,227.4-14.9,276.7,86.3c65.4,134.3-19,236.7-87.4,274.6c-93.1,51.7-211.2,17.4-267.6-70.7l69.3,14.5 c10.4,2.1,21.8-4.2,23.9-15.6c2.1-10.4-4.2-21.8-15.6-23.9l-122.8-25c-20.6-2-25,16.6-23.9,22.9l15.6,123.8 c1,10.4,9.4,17.7,19.8,17.7c12.8,0,20.8-12.5,19.8-23.9l-6-50.5c57.4,70.8,170.3,131.2,307.4,68.2 C414.856,432.511,548.256,314.811,460.656,132.911z" fill="#fff" stroke="#fff" stroke-width="30" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+  <script>
+    const dateIdeas = [
+      {
+        idea: "Take a pottery or ceramics class and make something for each other.",
+        kids: false,
+        reservation: true,
+        months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        time: "day",
+        tips: [
+          "Buy matching aprons or smocks first.",
+          "Personalize your creations with a secret message or symbol.",
+          "Follow up with a coffee or dessert date.",
+        ]
+      },
+      {
+        idea: "Have a picnic in a scenic park or botanical garden.",
+        kids: true,
+        reservation: false,
+        months: ["Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"],
+        time: "day",
+        tips: [
+          "Bring a frisbee or a board game for extra fun!",
+          "DIY tasting challenge—like sampling different cheeses or exotic fruits from TJ's blindfolded.",
+          "Photo scavenger hunt: come up with a list of things (e.g. cool shadow or a leaf bigger than your hand)."
+        ]
+      },
+      {
+        idea: "Renting the tub rooms in Watercourse Way.",
+        kids: false,
+        reservation: true,
+        months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        time: "night",
+        tips: [
+          "Bring a scented candle or herbal tea.",
+          "Bring a waterproof game or conversation cards to spark deeper or sillier conversations while soaking.",
+          "Go to dinner afterwards."
+        ]
+      },
+      {
+        idea: "Go for a hike on a nature trail and enjoy the fresh air.",
+        kids: true,
+        reservation: false,
+        months: ["Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"],
+        time: "day",
+        tips: [
+          "Pause and sketch or write a poem about the most beautiful view you find.",
+          "Silent mile challenge – Walk a stretch in silence and just take in the sounds, then talk about what you noticed.",
+          "DIY trail mix challenge—like sampling different nuts or exotic fruits from TJ's blindfolded.",
+          "Stretch & breathe – Find a scenic overlook or quiet spot and do a few gentle stretches or a quick breathing exercise together."
+        ]
+      },
+      {
+        idea: "Visit a science center or planetarium and stargaze.",
+        kids: true,
+        reservation: true,
+        months: ["Jun", "Jul", "Aug"],
+        time: "night",
+        tips: [
+          "Bring a thermos of hot chocolate or spiced tea",
+          "Guess which planet or star is which before reading the signs.",
+          "Write a short story inspired by something you see."
+        ]
+      },
+      {
+        idea: "Try a cooking class for a new cuisine and cook together.",
+        kids: false,
+        reservation: true,
+        months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        time: "both",
+        tips: [
+          "Record the cooking session (if allowed) and pretend its a cooking show.",
+          "Dress up according to the cuisine."
+        ]
+      },
+      {
+        idea: "Go to a board game cafe and play cooperative games.",
+        kids: false,
+        reservation: false,
+        months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        time: "both",
+        tips: [
+          "Each pick a game the other has never played before.",
+          "Dinner afterwards where you design a new game.",
+        ]
+      },
+      {
+        idea: "Visit a farmer's market and pick out ingredients for a meal.",
+        kids: true,
+        reservation: false,
+        months: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"],
+        time: "day",
+        tips: [
+          "Set a budget, separate, and see who can find the most unique ingredient.",
+          "Ask a vendor for their favorite recipe using their produce.",
+          "Create a meal together using only what you buy at the market."
+        ]
+      },
+      {
+        idea: "Take a scenic bike ride along a river or lake.",
+        kids: true,
+        reservation: false,
+        months: ["Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"],
+        time: "day",
+        tips: [
+          "Stop for a mini photo shoot at the prettiest spot you find.",
+          "Surprise picnic.",
+          "Small activity to do at the picnic—like playing a simple game, writing postcards to each other, or doing a photo challenge with your surroundings"
+        ]
+      },
+      {
+        idea: "Go fruit picking at a local orchard or berry farm.",
+        kids: true,
+        reservation: false,
+        months: ["May", "Jun", "Jul", "Aug", "Sep"],
+        time: "day",
+        tips: [
+          "Have a bake-off with what you pick when you get home.",
+          "See who can pick the biggest or most unusual fruit.",
+          "Do a vlog where you interview each other with questions like: what's your strategy? how are you feeling about your haul? weirdest fruit you've ever eaten?"
+        ]
+      },
+      {
+        idea: "Have a themed movie night at home with snacks and cozy blankets.",
+        kids: true,
+        reservation: false,
+        months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        time: "night",
+        tips: [
+          "Set up a cozy blanket fort in the living room, transforming the space into a secret hideaway.",
+          "Make snacks that match the movie's theme or setting.",
+          "Pause and predict what will happen next in the story."
+        ]
+      },
+      {
+        idea: "Visit a perfume factory or fragrance workshop and create your own scent.",
+        kids: false,
+        reservation: true,
+        months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        time: "day",
+        tips: [
+          "Try to guess each other's favorite scent ingredients.",
+          "Describe a memory that a scent reminds you of."
+        ]
+      },
+      {
+        idea: "Go kayaking or paddle boating on a calm lake.",
+        kids: true,
+        reservation: true,
+        months: ["May", "Jun", "Jul", "Aug", "Sep"],
+        time: "day",
+        tips: [
+          "Pack a waterproof disposable camera for fun action shots.",
+          "Race to a point and back for a friendly competition.",
+          "Incorporate a scavenger hunt"
+        ]
+      },
+      {
+        idea: "Have a bookshop date and pick out books for each other (blind books).",
+        kids: true,
+        reservation: false,
+        months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        time: "both",
+        tips: [
+          "Do a blind date with a book—Instead of browsing openly, choose books wrapped in brown paper",
+          "Share a reading spot—Find a cozy corner in the bookshop, grab some coffee, and read a few pages from the books you picked out for each other",
+          "Write a note inside the book you choose for your date."
+        ]
+      },
+      {
+        idea: "Go to a cake / food festival.",
+        kids: true,
+        reservation: false,
+        months: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"],
+        time: "day",
+        tips: [
+          "Rate each dish you try and pick a winner at the end.",
+          "Take a culinary photo challenge.",
+          "Secretly pick one dish or dessert you think they'll love without letting them know, and see if they can guess what it is as they try it."
+        ]
+      },
+      {
+        idea: "Walk around San Francisco and find the best view.",
+        kids: true,
+        reservation: false,
+        months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        time: "day",
+        tips: [
+          "Bring a disposable film camera for fun analog photos",
+          "Pack somethign small and thoughtful — a thermos of hot cocoa, some chocolate-dipped strawberries",
+          "End at a west-facing viewpoint like Twin Peaks or Bernal Heights Park at sunset for that wow factor"
+        ]
+      }
+    ];
+
+    function getRandomBrightColor() {
+      // HSL: high saturation, high lightness, random hue
+      const hue = Math.floor(Math.random() * 360);
+      return `hsl(${hue}, 90%, 60%)`;
+    }
+
+    function getCurrentMonthAbbr() {
+      const monthAbbrs = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      return monthAbbrs[new Date().getMonth()];
+    }
+
+    function getFilteredIdeas() {
+      const currentMonth = getCurrentMonthAbbr();
+      let filtered = dateIdeas.filter(idea => Array.isArray(idea.months) && idea.months.includes(currentMonth));
+      // Time filter
+      if (window.filterStates) {
+        if (window.filterStates.time === 1) {
+          filtered = filtered.filter(idea => idea.time === 'day' || idea.time === 'both');
+        } else if (window.filterStates.time === 2) {
+          filtered = filtered.filter(idea => idea.time === 'night' || idea.time === 'both');
+        }
+        // Group filter
+        if (window.filterStates.group === 1) {
+          filtered = filtered.filter(idea => idea.kids === true);
+        }
+        // Reservation filter
+        if (window.filterStates.reservation === 1) {
+          filtered = filtered.filter(idea => idea.reservation === true);
+        }
+      }
+      return filtered.length > 0 ? filtered : dateIdeas;
+    }
+
+    let lastIdea = null;
+    const card = document.getElementById('question-card');
+    const refreshBtn = document.getElementById('refresh-btn');
+
+    function pickRandomIdea(ideasArr) {
+      if (ideasArr.length === 1) return ideasArr[0];
+      let idea;
+      do {
+        idea = ideasArr[Math.floor(Math.random() * ideasArr.length)];
+      } while (ideasArr.length > 1 && idea === lastIdea);
+      return idea;
+    }
+
+    function updateRefreshCount() {
+      const count = getFilteredIdeas().length;
+      document.getElementById('refresh-count').textContent = count;
+    }
+
+    function showNextIdea(animate = true) {
+      updateRefreshCount();
+      const filteredIdeas = getFilteredIdeas();
+      const next = pickRandomIdea(filteredIdeas);
+      lastIdea = next;
+      const gradients = [
+        'linear-gradient(135deg, #3a3a7c 0%, #7c3aed 60%, #a855f7 100%)', // purple
+        'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)', // blue
+        'linear-gradient(135deg, #ff512f 0%, #dd2476 100%)', // red-pink
+        'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)', // green
+        'linear-gradient(135deg, #fc5c7d 0%, #6a82fb 100%)', // pink-blue
+        'linear-gradient(135deg, #00c3ff 0%, #1c3a4d 100%)', // blue-teal
+        'linear-gradient(135deg, #ee0979 0%, #ff6a00 100%)', // magenta-orange
+        'linear-gradient(135deg, #43cea2 0%, #185a9d 100%)', // teal-blue
+        'linear-gradient(135deg, #f953c6 0%, #b91d73 100%)', // pink-purple
+        'linear-gradient(135deg, #c471f5 0%, #fa71cd 100%)', // violet-pink
+        'linear-gradient(135deg, #00f2fe 0%, #4facfe 100%)', // cyan-blue
+        'linear-gradient(135deg, #f857a6 0%, #ff5858 100%)', // pink-red
+      ];
+      if (typeof showNextIdea.gradientIndex === 'undefined') {
+        showNextIdea.gradientIndex = 0;
+      }
+      showNextIdea.gradientIndex = (showNextIdea.gradientIndex + 1) % gradients.length;
+      const nextGradient = gradients[showNextIdea.gradientIndex];
+      console.log('Chosen gradient:', showNextIdea.gradientIndex, nextGradient);
+
+      // --- Meta info construction ---
+      // Month range
+      let months = next.months || [];
+      let monthRange = months.length > 1 ? `${months[0]} – ${months[months.length-1]}` : (months[0] || "");
+      // Time
+      let timeLabel = next.time === "both" ? "Day/Night" : (next.time.charAt(0).toUpperCase() + next.time.slice(1));
+      // Kids
+      let kidsLabel = next.kids ? ' &bull; <span title="Kid friendly">&#128118; kids</span>' : '';
+      // Reservation
+      let reservationLabel = next.reservation ? ' &bull; &#128221; Reservation required' : ' &bull; &#128694; No reservation required';
+      // Meta HTML
+      let metaHTML = `<div class="card-meta">${monthRange} &bull; ${timeLabel}${kidsLabel}${reservationLabel}</div>`;
+
+      if (animate) {
+        card.classList.add('animate-out');
+        setTimeout(() => {
+          card.style.background = nextGradient;
+          card.innerHTML = `<div class='idea-text'>${next.idea}</div><ul class='tip-list'>${next.tips.map(tip => `<li>${tip}</li>`).join('')}</ul>${metaHTML}`;
+          card.classList.remove('animate-out');
+          card.classList.add('animate-in');
+          setTimeout(() => {
+            card.classList.remove('animate-in');
+          }, 600);
+        }, 600);
+      } else {
+        card.style.background = nextGradient;
+        card.innerHTML = `<div class='idea-text'>${next.idea}</div><ul class='tip-list'>${next.tips.map(tip => `<li>${tip}</li>`).join('')}</ul>${metaHTML}`;
+      }
+    }
+
+    refreshBtn.addEventListener('click', () => {
+      showNextIdea();
+    });
+
+    // On page load, pick a random idea and gradient, set them, and animate in
+    window.addEventListener('DOMContentLoaded', () => {
+      const gradients = [
+        'linear-gradient(135deg, #3a3a7c 0%, #7c3aed 60%, #a855f7 100%)',
+        'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)',
+        'linear-gradient(135deg, #ff512f 0%, #dd2476 100%)',
+        'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+        'linear-gradient(135deg, #fc5c7d 0%, #6a82fb 100%)',
+        'linear-gradient(135deg, #00c3ff 0%, #1c3a4d 100%)',
+        'linear-gradient(135deg, #ee0979 0%, #ff6a00 100%)',
+        'linear-gradient(135deg, #43cea2 0%, #185a9d 100%)',
+        'linear-gradient(135deg, #f953c6 0%, #b91d73 100%)',
+        'linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%)',
+        'linear-gradient(135deg, #c471f5 0%, #fa71cd 100%)',
+        'linear-gradient(135deg, #00f2fe 0%, #4facfe 100%)',
+        'linear-gradient(135deg, #f857a6 0%, #ff5858 100%)',
+        'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
+      ];
+      // Filter ideas for current month
+      const filteredIdeas = getFilteredIdeas();
+      const first = pickRandomIdea(filteredIdeas);
+      lastIdea = first;
+      showNextIdea.gradientIndex = Math.floor(Math.random() * gradients.length);
+      // --- Meta info construction ---
+      let months = first.months || [];
+      let monthRange = months.length > 1 ? `${months[0]} – ${months[months.length-1]}` : (months[0] || "");
+      let timeLabel = first.time === "both" ? "Day/Night" : (first.time.charAt(0).toUpperCase() + first.time.slice(1));
+      let kidsLabel = first.kids ? ' &bull; <span title="Kid friendly">&#128118; kids</span>' : '';
+      let reservationLabel = first.reservation ? ' &bull; &#128694; Reservation required' : ' &bull; &#128694; No reservation required';
+      let metaHTML = `<div class="card-meta">${monthRange} &bull; ${timeLabel}${kidsLabel}${reservationLabel}</div>`;
+      card.innerHTML = `<div class='idea-text'>${first.idea}</div><ul class='tip-list'>${first.tips.map(tip => `<li>${tip}</li>`).join('')}</ul>${metaHTML}`;
+      card.style.background = gradients[showNextIdea.gradientIndex];
+      console.log('Initial chosen gradient:', showNextIdea.gradientIndex, gradients[showNextIdea.gradientIndex]);
+      // Animate in
+      card.classList.add('animate-in');
+      setTimeout(() => {
+        card.classList.remove('animate-in');
+      }, 600);
+      updateRefreshCount();
+    });
+
+    // Shake detection (mobile)
+    let lastShake = 0;
+    let lastX = null, lastY = null, lastZ = null;
+    const SHAKE_THRESHOLD = 15; // tune as needed
+    window.addEventListener('devicemotion', function(event) {
+      if (!event.accelerationIncludingGravity) return;
+      const { x, y, z } = event.accelerationIncludingGravity;
+      if (lastX !== null && lastY !== null && lastZ !== null) {
+        const deltaX = Math.abs(x - lastX);
+        const deltaY = Math.abs(y - lastY);
+        const deltaZ = Math.abs(z - lastZ);
+        if ((deltaX + deltaY + deltaZ) > SHAKE_THRESHOLD) {
+          const now = Date.now();
+          if (now - lastShake > 1000) { // 1s cooldown
+            showNextIdea();
+            lastShake = now;
+          }
+        }
+      }
+      lastX = x;
+      lastY = y;
+      lastZ = z;
+    });
+
+    // Optional: allow pressing spacebar for next question (desktop)
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        showNextIdea();
+      }
+    });
+
+    // --- Filter state logic ---
+    // 0 = any, 1 = day, 2 = night
+    // 0 = all, 1 = kid-friendly only
+    // 0 = all, 1 = reservation required only
+    window.filterStates = {
+      time: 0, // 0=any, 1=day, 2=night
+      group: 0, // 0=all, 1=kid
+      reservation: 0 // 0=all, 1=list
+    };
+    function updateFilterIcons() {
+      // Time
+      const timeStates = [
+        {icon: '\uD83D\uDD50', title: 'Any time'}, // 🕒
+        {icon: '\u2600\uFE0F', title: 'Day activities'}, // ☀️
+        {icon: '\uD83C\uDF19', title: 'Night activities'} // 🌙
+      ];
+      const t = window.filterStates.time;
+      document.getElementById('icon-time').textContent = timeStates[t].icon;
+      document.getElementById('filter-time').title = timeStates[t].title;
+      // Group
+      const groupStates = [
+        {icon: '\uD83D\uDC6B', title: 'All activities'}, // 👫
+        {icon: '\uD83D\uDC76', title: 'Kid-friendly only'} // 👶
+      ];
+      const g = window.filterStates.group;
+      document.getElementById('icon-group').textContent = groupStates[g].icon;
+      document.getElementById('filter-group').title = groupStates[g].title;
+      // Reservation
+      const reservationStates = [
+        {icon: '\uD83D\uDEB6', title: 'Walk-in or reservation'}, // 🚶
+        {icon: '\uD83D\uDCDD', title: 'Reservation required only'} // 📝
+      ];
+      const r = window.filterStates.reservation;
+      document.getElementById('icon-reservation').textContent = reservationStates[r].icon;
+      document.getElementById('filter-reservation').title = reservationStates[r].title;
+    }
+    function cycleFilterState(key, max) {
+      window.filterStates[key] = (window.filterStates[key] + 1) % max;
+      updateFilterIcons();
+      updateRefreshCount();
+      showNextIdea();
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      updateFilterIcons();
+      document.getElementById('filter-time').addEventListener('click', function() { cycleFilterState('time', 3); });
+      document.getElementById('filter-group').addEventListener('click', function() { cycleFilterState('group', 2); });
+      document.getElementById('filter-reservation').addEventListener('click', function() { cycleFilterState('reservation', 2); });
+    });
+  </script>
+</body>
+</html>
