@@ -28,7 +28,7 @@ load_dotenv()
 # ----------------------------------------------------
 client = MongoClient("mongodb://localhost:27017")
 db = client["scrumbotdb"]
-
+DEV_ID = ObjectId("6902377289b2152bb6ffbb84")
 developers_col = db["developers"]
 projects_col = db["projects"]
 sprints_col = db["sprints"]
@@ -223,14 +223,10 @@ JSON format:
 """
 )
 
-
 def clean_json(text):
     match = re.search(r"\{.*\}", text, re.DOTALL)
     return json.loads(match.group()) if match else {}
 
-# ----------------------------------------------------
-# 1️⃣ Generate Sprint
-# ----------------------------------------------------
 @app.route("/generate_sprint", methods=["POST"])
 def generate_sprint():
     try:
@@ -242,6 +238,7 @@ def generate_sprint():
         team_size = payload["team_size"]
         user_stories = payload["user_stories"]
 
+        # 1️⃣ Generate Sprint Plan using LLM
         prompt = sprint_prompt.invoke({
             "stories": json.dumps(user_stories),
             "team_size": team_size,
@@ -251,11 +248,13 @@ def generate_sprint():
         response = model.invoke(prompt)
         sprint_data = clean_json(response.content)
 
-        # Insert Sprint
+        # 2️⃣ Insert Sprint
         sprint_doc = {
             "name": sprint_data["sprint_name"],
             "goal": sprint_data["sprint_goal"],
             "project_id": project_id,
+            "team_size": team_size,
+            "team_members": [DEV_ID],
             "start_date": date.today().isoformat(),
             "end_date": date.today().isoformat(),
             "status": "Planned",
@@ -264,47 +263,178 @@ def generate_sprint():
 
         sprint_id = sprints_col.insert_one(sprint_doc).inserted_id
 
-        # Insert Stories, Tasks, Subtasks
+        # 3️⃣ Insert Stories → Tasks → Subtasks
         for story in sprint_data["stories"]:
-            story_doc = {
+            story_id = stories_col.insert_one({
                 "story_code": story["story_id"],
                 "title": story["title"],
                 "sprint_id": sprint_id,
                 "status": "To Do",
                 "created_at": datetime.utcnow()
-            }
-            story_id = stories_col.insert_one(story_doc).inserted_id
+            }).inserted_id
 
             for task in story["tasks"]:
-                task_doc = {
+                task_id = tasks_col.insert_one({
                     "title": task["title"],
                     "description": task["description"],
                     "story_id": story_id,
                     "sprint_id": sprint_id,
                     "status": "To Do",
                     "created_at": datetime.utcnow()
-                }
-                task_id = tasks_col.insert_one(task_doc).inserted_id
+                }).inserted_id
 
                 for sub in task["subtasks"]:
                     subtasks_col.insert_one({
                         "title": sub["title"],
                         "description": sub["description"],
                         "task_id": task_id,
+                        "assignee_id": DEV_ID,
                         "status": "To Do",
                         "estimated_hours": sub["estimated_hours"],
                         "actual_hours": 0,
+                        "percent_complete": 0,
                         "created_at": datetime.utcnow()
                     })
 
         return jsonify({
-            "message": "Sprint generated successfully",
+            "success": True,
+            "message": "Sprint generated and tasks assigned successfully",
             "sprint_id": str(sprint_id),
             "goal": sprint_data["sprint_goal"]
+            
         }), 201
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+@app.route("/developer/my-tasks", methods=["GET"]) 
+def get_static_developer_tasks():
+    try:
+        subtasks = list(subtasks_col.find(
+            {"assignee_id": DEV_ID},
+            {
+                "_id": 1,
+                "title": 1,
+                "description": 1,
+                "status": 1,
+                "estimated_hours": 1,
+                "actual_hours": 1,
+                "percent_complete": 1,
+                "created_at": 1
+            }
+        ))
+
+        # Convert ObjectId → string
+        for task in subtasks:
+            task["_id"] = str(task["_id"])
+
+        # 📊 Metrics
+        total = len(subtasks)
+        completed = sum(1 for t in subtasks if t["status"] == "Done")
+        blocked = sum(1 for t in subtasks if t["status"] == "Blocked")
+
+        progress = round((completed / total) * 100, 2) if total else 0
+
+        return jsonify({
+            "success": True,
+            "data": {
+                "developer_id": str(DEV_ID),
+                "subtasks": subtasks,
+                "metrics": {
+                    "total": total,
+                    "completed": completed,
+                    "blocked": blocked,
+                    "progress": progress
+                }
+            }
+        })
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+# ----------------------------------------------------
+# 🔹 Current Sprint for Developer
+# ----------------------------------------------------
+@app.route("/developer/current-sprint", methods=["GET"])
+def get_current_sprint():
+    try:
+        # 🔥 FIXED QUERY
+        sprint = sprints_col.find_one({
+            "team_members": { "$in": [DEV_ID] },
+            "status": { "$in": ["Planned", "Active"] }
+        })
+
+        if not sprint:
+            return jsonify({
+                "success": True,
+                "data": None,
+                "message": "No active sprint assigned"
+            })
+
+        sprint_id = sprint["_id"]
+
+        # Fetch tasks in sprint
+        task_ids = [
+            t["_id"] for t in tasks_col.find(
+                {"sprint_id": sprint_id},
+                {"_id": 1}
+            )
+        ]
+
+        subtasks = list(subtasks_col.find(
+            {
+                "assignee_id": DEV_ID,
+                "task_id": { "$in": task_ids }
+            },
+            {
+                "_id": 1,
+                "title": 1,
+                "status": 1,
+                "estimated_hours": 1,
+                "actual_hours": 1,
+                "percent_complete": 1
+            }
+        ))
+
+        for s in subtasks:
+            s["_id"] = str(s["_id"])
+
+        total = len(subtasks)
+        completed = sum(1 for t in subtasks if t["status"] == "Done")
+        blocked = sum(1 for t in subtasks if t["status"] == "Blocked")
+        progress = round((completed / total) * 100, 2) if total else 0
+
+        return jsonify({
+            "success": True,
+            "data": {
+                "sprint": {
+                    "id": str(sprint["_id"]),
+                    "name": sprint["name"],
+                    "goal": sprint["goal"],
+                    "status": sprint["status"],
+                    "start_date": sprint["start_date"],
+                    "end_date": sprint["end_date"]
+                },
+                "subtasks": subtasks,
+                "metrics": {
+                    "total": total,
+                    "completed": completed,
+                    "blocked": blocked,
+                    "progress": progress
+                }
+            }
+        })
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
 
 # ----------------------------------------------------
 # 2️⃣ Standup Submission (NLP Ready)

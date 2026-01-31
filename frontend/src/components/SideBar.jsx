@@ -96,7 +96,7 @@ const SideBar = () => {
               <SidebarLink to="/Developer/Dashboard" icon={<FaClipboardList />} label="My Dashboard" isOpen={isOpen} />
               <SidebarLink to="/ChatBot" icon={<FaRobot />} label="Daily Bot Check-in" isOpen={isOpen} />
               <SidebarLink to="/MyTasks" icon={<FaTasks />} label="Task Board" isOpen={isOpen} />
-              <SidebarLink to="/Sprints" icon={<FaLayerGroup />} label="Current Sprint" isOpen={isOpen} />
+              <SidebarLink to="/CurrentSprint" icon={<FaLayerGroup />} label="Current Sprint" isOpen={isOpen} />
               <SidebarLink to="/TeamMembers" icon={<FaUsers />} label="My Team" isOpen={isOpen} />
             </>
           )}

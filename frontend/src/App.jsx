@@ -374,6 +374,8 @@ import STeamChat from './components/STeamChat';
 import SprintGeneration from './pages/SprintGenerator';
 import ReportGeneration from './pages/ReportGenerator';
 import FullPipeline from './pages/FullPipeline';
+import MyTasks from './pages/MyTasks';
+import CurrentSprint from './pages/CurrentSprint';
 function App() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state?.user?.user);
@@ -563,6 +565,14 @@ function App() {
       ),
     },
     {
+      path: '/CurrentSprint',
+      element: (
+        <>  
+          <CurrentSprint />
+        </>
+      ),
+    },
+    {
       path: '/Preferences',
       element: (
         <>  
@@ -575,6 +585,14 @@ function App() {
       element: (
         <>  
           <Responses />
+        </>
+      ),
+    },
+    {
+      path: '/MyTasks',
+      element: (
+        <>  
+          <MyTasks />
         </>
       ),
     },
